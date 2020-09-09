@@ -13,7 +13,12 @@ public class Player : Agent
 
     //private////////////
     actions currentAction;
-
+    //Movement
+    private Rigidbody playerBody;
+    Transform cam;
+    InputManager myInput;
+    /// //
+    
     //public/////////////
     public int myCrystals;
     public int myCrystalsPowder;
@@ -22,7 +27,15 @@ public class Player : Agent
 
     #region METHODS
     private void Start()
-    {            
+    {
+
+        //Getting components //Input
+        myInput = GameObject.FindGameObjectWithTag("GameManager").GetComponent<InputManager>();
+        //Rb
+        playerBody = GetComponent<Rigidbody>();
+
+        //Initialize
+        speed = 3;
     }
 
     void GetInpuCOntroller()
@@ -39,6 +52,7 @@ public class Player : Agent
 
     void AddMovement()
     {
+        playerBody.velocity = new Vector3 (myInput.inputVector.x * speed,playerBody.velocity.y, myInput.inputVector.z * speed);
     }
 
     void Skills(skills skill)
@@ -59,6 +73,12 @@ public class Player : Agent
 
     void Protect()
     {
+    }
+
+    private void Update()
+    {
+        //movement
+        AddMovement();
     }
 
     public void StopMovement()
