@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using DG.Tweening;
+
 public class Enemy : Agent
 {
     #region VARIABLES
@@ -22,23 +24,33 @@ public class Enemy : Agent
     };
 
     /////////ENEMY
+    [Header("ENEMY")]
+    public float lifeThreshold = 30f;
+    public float distanceToRun;
     NavMeshAgent agent;
     StateEnemy currentState;
-    public float lifeThreshold = 30f;
     float maxLife;
     float currentPercentLife;
-    AttackType currentAttack;
-    public float distanceToRun;
 
     /////////PATROL ELEMENTS
+    [Header("PATROL ELEMENTS")]
     public Transform[] patrolPoints;
+    public float minDistanceToPoint = 1.5f;
     int currentPoint;
-    public float minDistanceToPoint = 0.5f;
 
     /////////PLAYER
-    Player player;
-    Transform playerTransform;
+    [Header("PLAYER")]
     public float maxDistanceToPlayer = 20f;
+    public float minDistanceToPlayer = 1.5f;
+    Player player;
+    Rigidbody playerRB;
+    Transform playerTransform;
+
+    /////////ATTACK
+    [Header("ATTACK")]
+    public float timeToAttack = 5f;
+    float countDownToAttack= 5f;
+    AttackType currentAttack;
     #endregion
 
     #region START
@@ -59,7 +71,10 @@ public class Enemy : Agent
         {
             player = auxPlayer.GetComponent<Player>();
             playerTransform = auxPlayer.transform;
-        }        
+            playerRB = auxPlayer.GetComponent<Rigidbody>();
+        }
+
+        countDownToAttack = timeToAttack;
     }
     #endregion
     
@@ -86,12 +101,23 @@ public class Enemy : Agent
                 }
             case StateEnemy.SEEK:
                 {
-                    agent.SetDestination(playerTransform.position);
+                    //Controlamos el ataque
+                    HandleAttack();
+
+                    //Miramos si no acercamos demasiado
+                    if (Vector3.Distance(this.transform.position, playerTransform.position) >= minDistanceToPoint * 3f)
+                    {
+                        agent.SetDestination(playerTransform.position);
+                    }
                     break;
                 }
             case StateEnemy.FLEE:
                 {
-                    if (Vector3.Distance(this.transform.position, patrolPoints[currentPoint].position) <= distanceToRun)
+                    //Controlamos el ataque
+                    HandleAttack();
+
+                    //Miramos si no acercamos demasiado
+                    if (Vector3.Distance(this.transform.position, playerTransform.position) <= distanceToRun)
                     {
                         //Sacamos la dirección al player
                         Vector3 dirToplayer = this.transform.position - playerTransform.position;
@@ -128,13 +154,15 @@ public class Enemy : Agent
 
                         if (currentPercentLife >= lifeThreshold)
                         {
-                            Debug.Log("EL ESTADO ACTUAL ES SEEK");
+                            countDownToAttack = timeToAttack;
+                            //Debug.Log("EL ESTADO ACTUAL ES SEEK");
                             currentState = StateEnemy.SEEK;
                             agent.speed = speed * 2;
                         }
                         else
                         {
-                            Debug.Log("EL ESTADO ACTUAL ES FLEE");
+                            countDownToAttack = timeToAttack;
+                            //Debug.Log("EL ESTADO ACTUAL ES FLEE");
                             currentState = StateEnemy.FLEE;
                             agent.speed = speed * 2;
                         }
@@ -148,7 +176,9 @@ public class Enemy : Agent
                     //Distance to Player
                     if (Vector3.Distance(this.transform.position, playerTransform.position) >= maxDistanceToPlayer)
                     {
-                        Debug.Log("EL ESTADO ACTUAL ES PATROL");
+                        countDownToAttack = timeToAttack;
+
+                        //Debug.Log("EL ESTADO ACTUAL ES PATROL");
                         currentState = StateEnemy.PATROL;
                         agent.speed = speed;
                         UpdatePatrolPoint();
@@ -159,7 +189,9 @@ public class Enemy : Agent
 
                     if (currentPercentLife <= lifeThreshold)
                     {
-                        Debug.Log("EL ESTADO ACTUAL ES FLEE");
+                        countDownToAttack = timeToAttack;
+
+                        //Debug.Log("EL ESTADO ACTUAL ES FLEE");
                         currentState = StateEnemy.FLEE;
                     }
 
@@ -169,7 +201,9 @@ public class Enemy : Agent
                 {
                     if (Vector3.Distance(this.transform.position, playerTransform.position) >= maxDistanceToPlayer)
                     {
-                        Debug.Log("EL ESTADO ACTUAL ES PATROL");
+                        countDownToAttack = timeToAttack;
+
+                        //Debug.Log("EL ESTADO ACTUAL ES PATROL");
                         currentState = StateEnemy.PATROL;
                         agent.speed = speed;
                         UpdatePatrolPoint();
@@ -180,7 +214,9 @@ public class Enemy : Agent
 
                     if (currentPercentLife >= lifeThreshold)
                     {
-                        Debug.Log("EL ESTADO ACTUAL ES SEEK");
+                        countDownToAttack = timeToAttack;
+
+                        //Debug.Log("EL ESTADO ACTUAL ES SEEK");
                         currentState = StateEnemy.SEEK;
                     }
                     break;
@@ -201,7 +237,27 @@ public class Enemy : Agent
 
         agent.SetDestination(patrolPoints[currentPoint].position);
     }
-    #endregion    
+    #endregion
+
+    #region HANDLE ATTACK
+    void HandleAttack()
+    {
+        countDownToAttack -= Time.deltaTime;
+        if (countDownToAttack <= 0f)
+        {
+            if (Vector3.Distance(this.transform.position, playerTransform.position) <= minDistanceToPoint * 3f)
+            {
+                Debug.Log("ATTACK!!");
+                countDownToAttack = timeToAttack;
+
+                Vector3 pushDirection = playerTransform.position - this.transform.position;
+                pushDirection.y += 2f;
+                playerTransform.DOMove(playerTransform.position+ pushDirection, 0.3f);
+               
+            }
+        }
+    }
+    #endregion
 
     #region ON DRAW GIZMOS
     private void OnDrawGizmos()
