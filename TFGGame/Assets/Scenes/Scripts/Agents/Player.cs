@@ -53,6 +53,8 @@ public class Player : Agent
     void AddMovement()
     {
         playerBody.velocity = new Vector3 (myInput.inputVector.x * speed,playerBody.velocity.y, myInput.inputVector.z * speed);
+        //rotate
+        transform.LookAt(transform.position + new Vector3 (myInput.inputVector.x,0, myInput.inputVector.z));
     }
 
     void Skills(skills skill)
@@ -75,7 +77,7 @@ public class Player : Agent
     {
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         //movement
         AddMovement();
