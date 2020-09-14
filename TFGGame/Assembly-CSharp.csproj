@@ -52,10 +52,10 @@
     <UnityVersion>2020.1.0f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scenes\Scripts\Agents\InputManager.cs" />
     <Compile Include="Assets\Scenes\Scripts\Agents\Weapons.cs" />
     <Compile Include="Assets\Scenes\Scripts\Agents\Agent.cs" />
     <Compile Include="Assets\Scenes\Scripts\Agents\Player.cs" />
-    <Compile Include="Assets\Scenes\Scripts\Agents\InputManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

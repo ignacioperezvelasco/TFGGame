@@ -21,5 +21,9 @@ public class InputManager : MonoBehaviour
     void Update()
     {
         inputVector = new Vector3(Input.GetAxisRaw("Horizontal"),0, Input.GetAxisRaw("Vertical"));
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            jump = true;
+        }
     }
 }

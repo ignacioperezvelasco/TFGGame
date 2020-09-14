@@ -17,6 +17,7 @@ public class Player : Agent
     private Rigidbody playerBody;
     Transform cam;
     InputManager myInput;
+    bool isJumping;
     /// //
     
     //public/////////////
@@ -54,7 +55,7 @@ public class Player : Agent
     {
         playerBody.velocity = new Vector3 (myInput.inputVector.x * speed,playerBody.velocity.y, myInput.inputVector.z * speed);
         //rotate
-        transform.LookAt(transform.position + new Vector3 (myInput.inputVector.x,0, myInput.inputVector.z));
+        transform.LookAt(transform.position + new Vector3 (myInput.inputVector.x,0f, myInput.inputVector.z));
     }
 
     void Skills(skills skill)
@@ -63,6 +64,7 @@ public class Player : Agent
 
     void Jump()
     {
+        playerBody.AddForce(new Vector3(0,100,0),ForceMode.Impulse);
     }
 
     void Dash()
@@ -81,6 +83,20 @@ public class Player : Agent
     {
         //movement
         AddMovement();
+    }
+
+    private void Update()
+    {
+        if (myInput.jump && !isJumping)
+        {
+            isJumping = true;
+            myInput.jump = false;
+            Jump();
+        }
+        else //if(isgrounded)
+        {
+            isJumping = false;
+        }
     }
 
     public void StopMovement()
