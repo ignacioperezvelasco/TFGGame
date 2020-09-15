@@ -58,6 +58,7 @@
     <Compile Include="Assets\Scenes\Scripts\CameraCollision.cs" />
     <Compile Include="Assets\Scenes\Scripts\CameraFollow.cs" />
     <Compile Include="Assets\Scenes\Scripts\CameraLock.cs" />
+    <Compile Include="Assets\Scenes\Scripts\Interactuable.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
